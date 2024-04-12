@@ -18,10 +18,10 @@ for ml in ML_METHOD:
     df_q = pd.DataFrame()
     for time in df["time"].unique():
         df_time = df.loc[df["time"] == time].copy().reset_index(drop=True)
-        for quantile in range(1, 11, 1):
+        for quantile in range(1, 6, 1):
             df_quantile = df_time.iloc[
-                int(len(df_time) * (quantile - 1) / 10) : int(
-                    len(df_time) * quantile / 10
+                int(len(df_time) * (quantile - 1) / 5) : int(
+                    len(df_time) * quantile / 5
                 )
             ]
 
