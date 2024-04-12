@@ -10,6 +10,7 @@ import pandas as pd
 import tensorflow as tf
 from scipy.sparse import spmatrix
 from sklearn import preprocessing
+from sklearn.ensemble import RandomForestRegressor
 
 from environ.constants import VALIDATION_MONTH
 
@@ -24,7 +25,7 @@ def transform_train(
     """
 
     ind_var = df[[_ for _ in var]].copy()
-    d_var = df["ret_w"]
+    d_var = df["log_ret_w"]
     scaler = preprocessing.StandardScaler().fit(ind_var)
     ind_var = scaler.transform(ind_var)
     return d_var, ind_var, scaler
@@ -37,7 +38,7 @@ def gen_data(
     Generate the data
     """
     ind_var = df[[_ for _ in var]].copy()
-    d_var = df["ret_w"]
+    d_var = df["log_ret_w"]
     ind_var = scaler.transform(ind_var)
     return d_var, ind_var
 
@@ -67,9 +68,6 @@ def sample_split(df: pd.DataFrame, time: pd.Timestamp, var: list, dvar: str = ""
     # set the dvar to zero if provided
     if dvar:
         df[dvar] = 0
-        print(f"{dvar} set to zero")
-    else:
-        print("No dvar provided")
 
     train = df.loc[df["time"] < time - pd.DateOffset(months=VALIDATION_MONTH)]
     valid = df.loc[
@@ -94,6 +92,26 @@ def sample_split(df: pd.DataFrame, time: pd.Timestamp, var: list, dvar: str = ""
         x_test,
     )
 
+def rf_model(
+    x_train: np.ndarray | spmatrix,
+    y_train: pd.Series,
+    max_depth: int,
+    max_features: int,
+) -> Any:
+    """
+    Function to create the random forest model
+    """
+
+    model = RandomForestRegressor(
+        n_estimators=300,
+        max_depth=max_depth,
+        max_features=max_features,
+        n_jobs=-1,
+        random_state=0,
+    )
+
+    model.fit(x_train, y_train)
+    return model
 
 def nn_model(
     x_train: np.ndarray | spmatrix,

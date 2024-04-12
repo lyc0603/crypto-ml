@@ -25,7 +25,10 @@ COINGECKO_API_KEY = [
 
 # sample split
 VALIDATION_MONTH = 1
-TEST_START_DATE = "2022-11-01"
+TEST_START_DATE = "2021-01-01"
+
+# ml method
+ML_METHOD = ["rf"] + [f"nn_{_}" for _ in range(1, 6)]
 
 # hyperparameters
 PARAM_GRID = {
@@ -37,10 +40,15 @@ PARAM_GRID = {
             (128, 64, 32, 16),
             (128, 64, 32, 16, 8),
         ],
-        "alpha": [10**_ for _ in np.linspace(-4, -3, num=1)],
-        "learning_rate_init": np.linspace(0.001, 0.1, num=1),
+        "alpha": [10**_ for _ in np.linspace(-4, -3, num=5)],
+        "learning_rate_init": np.linspace(0.001, 0.1, num=5),
+    },
+    "rf":{
+        "max_depth": range(1, 7, 1),
+        "max_features": [3, 5, 10, 20],
     }
 }
+PARAM_GRID
 
 # risk-free rate
 FAMA_FRENCH_DAILY_FACTOR = (
