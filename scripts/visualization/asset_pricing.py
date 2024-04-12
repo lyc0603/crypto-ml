@@ -2,13 +2,13 @@
 Script to visualize asset pricing table
 """
 
-from environ.constants import TABLE_PATH
+from environ.constants import TABLE_PATH, ML_NAMING_DICT
 from scripts.process.asset_pricing import ML_METHOD, asset_pricing_dict
 
 # generate latex table
 with open(f"{TABLE_PATH}/asset_pricing.tex", "w", encoding="utf-8") as f:
     f.write(
-        r"\begin{tabular}{>{\centering\arraybackslash}m{1.5cm}m{3cm}>{\centering\arraybackslash}m{2.5cm}>{\centering\arraybackslash}m{2.5cm}>{\centering\arraybackslash}m{2.5cm}}"
+        r"\begin{tabular}{ccccccccccccc}"
     )
     f.write("\n")
     for idx in range(1, len(ML_METHOD) + 1, 3):
