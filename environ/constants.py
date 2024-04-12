@@ -30,6 +30,15 @@ TEST_START_DATE = "2021-01-01"
 # ml method
 ML_METHOD = ["rf"] + [f"nn_{_}" for _ in range(1, 6)]
 
+ML_NAMING_DICT = {
+    "rf" : "RF",
+    "nn_1": "NN1",
+    "nn_2": "NN2",
+    "nn_3": "NN3",
+    "nn_4": "NN4",
+    "nn_5": "NN5",
+}
+
 # hyperparameters
 PARAM_GRID = {
     "nn": {

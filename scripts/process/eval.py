@@ -9,7 +9,7 @@ from environ.constants import PROCESSED_DATA_PATH, FIGURE_PATH
 from environ.process.ml_model import r2_score
 from scripts.process.sp_ret import sp_df
 
-test_rf = pd.read_csv(PROCESSED_DATA_PATH / "res" / "test" /"nn_5_.csv")
+test_rf = pd.read_csv(PROCESSED_DATA_PATH / "res" / "test" /"rf_.csv")
 # test_rf = pd.read_csv(PROCESSED_DATA_PATH / "test" / "test_nn.csv")
 test_rf["time"] = pd.to_datetime(test_rf["time"])
 
@@ -42,13 +42,14 @@ print(
 )
 
 # calculate the quantile of ret_pred for each time
-test_rf["quantile"] = test_rf.groupby(["time"])["ret_pred"].transform(
-    lambda x: pd.qcut(x, 5, labels=False, duplicates="drop")
-)
+for time in test_rf["time"].unique():
+    test_rf.loc[test_rf["time"] == time, "quantile"] = pd.qcut(
+        test_rf.loc[test_rf["time"] == time, "ret_pred"], 10, labels=False, duplicates="drop"
+    )
 
 df_q = pd.DataFrame()
 
-for quantile in range(5):
+for quantile in range(10):
     q = (
         test_rf.loc[test_rf["quantile"] == quantile]
         .groupby(["time"])["ret_w"]
