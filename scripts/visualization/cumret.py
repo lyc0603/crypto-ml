@@ -16,7 +16,6 @@ for ml, df_q in cumret_plot_dict.items():
 
     plt.legend(loc="upper right")
     plt.xticks(rotation=90)
-    plt.ylabel("Cumulative Return")
     plt.grid(alpha=0.5)
     plt.tight_layout()
     plt.savefig(f"{FIGURE_PATH}/cumret_{ml}.pdf")
