@@ -8,7 +8,7 @@ import seaborn as sns
 from environ.constants import FIGURE_PATH, ML_METHOD
 from scripts.process.factor_importance import factor_importance_dict
 
-plt.rcParams["figure.figsize"] = (16, 8)
+plt.rcParams["figure.figsize"] = (8, 5)
 
 for method in ML_METHOD:
     df_param_importance = factor_importance_dict[method]
