@@ -8,7 +8,7 @@ from scripts.process.asset_pricing import ML_METHOD, asset_pricing_dict
 # generate latex table
 with open(f"{TABLE_PATH}/asset_pricing.tex", "w", encoding="utf-8") as f:
     f.write(
-        r"\begin{tabular}{ccccccccccccc}"
+        r"\begin{tabularx}{\linewidth}{*{13}{X}}"
     )
     f.write("\n")
     for idx in range(1, len(ML_METHOD) + 1, 3):
@@ -39,7 +39,7 @@ with open(f"{TABLE_PATH}/asset_pricing.tex", "w", encoding="utf-8") as f:
             f.write("\n")
         f.write("\hline\n")
 
-    f.write("\end{tabular}")
+    f.write("\end{tabularx}")
     
 
 
