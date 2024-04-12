@@ -14,7 +14,7 @@ for ml, df_q in cumret_plot_dict.items():
         df_q_q = df_q.loc[df_q["quantile"] == quantile]
         plt.plot(df_q_q["time"], df_q_q["cum_ret"], label=f"Quantile {quantile}")
 
-    plt.legend()
+    plt.legend(loc="upper right")
     plt.xticks(rotation=90)
     plt.ylabel("Cumulative Return")
     plt.grid(alpha=0.5)
