@@ -9,7 +9,7 @@ from scripts.process.cumret import cumret_plot_dict
 
 # plot the cumulative return
 for ml, df_q in cumret_plot_dict.items():
-    plt.figure(figsize=(12, 6))
+    plt.figure(figsize=(6, 3))
     for quantile in range(1, 6, 1):
         df_q_q = df_q.loc[df_q["quantile"] == quantile]
         plt.plot(df_q_q["time"], df_q_q["cum_ret"], label=f"Quantile {quantile}")
