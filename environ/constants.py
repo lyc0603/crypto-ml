@@ -28,7 +28,7 @@ VALIDATION_MONTH = 1
 TEST_START_DATE = "2021-01-01"
 
 # ml method
-ML_METHOD = ["ols", "lasso", "enet", "rf"] + [f"nn_{_}" for _ in range(1, 6)]
+ML_METHOD = ["lasso", "enet", "rf"] + [f"nn_{_}" for _ in range(1, 6)]
 
 ML_NAMING_DICT = {
     "ols": "OLS",
