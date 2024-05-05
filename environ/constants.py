@@ -113,7 +113,7 @@ User_Agent = {
     )
 }
 
-# MACRO VARIABLES
+# variables
 MACRO_VARIABLES = [
     "dp",
     "ep",
@@ -124,3 +124,33 @@ MACRO_VARIABLES = [
     "dfy",
     "svar",
 ]
+
+VAR_NAMING_DICT = {
+    "mcap": "mcap",
+    "prc": "prc",
+    "maxdprc": "maxdprc",
+    "age": "age",
+    "mom_1_0": "mom1w",
+    "mom_2_0": "mom2w",
+    "mom_3_0": "mom3w",
+    "mom_4_0": "mom4w",
+    "mom_4_1": "mom4_1w",
+    "mom_8_0": "mom8w",
+    "mom_16_0": "mom16w",
+    "mom_50_0": "mom50w",
+    "mom_100_0": "mom100w",
+    "vol": "vol",
+    "prcvol": "prcvol",
+    "volscaled": "volscaled",
+    "beta": "beta",
+    "beta2": "beta2",
+    "idiovol": "idiovol",
+    "retvol": "retvol",
+    "maxret": "maxret",
+    "delay": "delay",
+    "stdprcvol": "stdprcvol",
+    "damihud": "damihud",
+    "google": "google",
+    "category": "category",
+    "all": "all",
+}

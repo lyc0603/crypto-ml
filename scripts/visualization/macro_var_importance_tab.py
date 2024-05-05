@@ -2,7 +2,7 @@
 Script to generate a table of the importance of macro variables in the model
 """
 
-from scripts.process.macro_var_importance import factor_importance_dict
+from scripts.process.macro_var_imp import factor_importance_dict
 from environ.constants import ML_METHOD, TABLE_PATH, H_ML, MACRO_VARIABLES
 
 # generate latex table
