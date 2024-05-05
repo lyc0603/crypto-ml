@@ -11,6 +11,7 @@ with open(f"{TABLE_PATH}/r2.tex", "w", encoding="utf-8") as f:
         r"\begin{tabularx}{\linewidth}{*{" + f"{len(r2_dict.keys()) + 1}" + r"}{X}}"
     )
     f.write("\n")
+    f.write("\hline\n")
     for ml_method in r2_dict.keys():
         f.write(f"& {ml_method}")
     f.write(r"\\")
