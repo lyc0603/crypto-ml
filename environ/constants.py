@@ -112,3 +112,15 @@ User_Agent = {
         + "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     )
 }
+
+# MACRO VARIABLES
+MACRO_VARIABLES = [
+    "dp",
+    "ep",
+    "bm",
+    "ntis",
+    "tbl",
+    "tms",
+    "dfy",
+    "svar",
+]
