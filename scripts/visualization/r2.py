@@ -8,7 +8,7 @@ from environ.constants import TABLE_PATH
 # generate latex table
 with open(f"{TABLE_PATH}/r2.tex", "w", encoding="utf-8") as f:
     f.write(
-        r"\begin{tabularx}{\linewidth}{*{" + f"{len(r2_dict.keys())}" + r"}{X}}"
+        r"\begin{tabularx}{\linewidth}{*{" + f"{len(r2_dict.keys()) + 1}" + r"}{X}}"
     )
     f.write("\n")
     for ml_method in r2_dict.keys():
