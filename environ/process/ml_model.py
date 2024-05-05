@@ -7,12 +7,17 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+import seaborn as sns
 import tensorflow as tf
+import torch
 from scipy.sparse import spmatrix
 from sklearn import preprocessing
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.cross_decomposition import PLSRegression
+from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 
 from environ.constants import VALIDATION_MONTH
+from environ.process.ml_utils import (elastic_penalty, huber_loss, l1_penalty,
+                                      l2_penalty, mse_loss)
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
@@ -25,7 +30,7 @@ def transform_train(
     """
 
     ind_var = df[[_ for _ in var]].copy()
-    d_var = df["log_ret_w"]
+    d_var = df["log_eret_w"]
     scaler = preprocessing.StandardScaler().fit(ind_var)
     ind_var = scaler.transform(ind_var)
     return d_var, ind_var, scaler
@@ -38,7 +43,7 @@ def gen_data(
     Generate the data
     """
     ind_var = df[[_ for _ in var]].copy()
-    d_var = df["log_ret_w"]
+    d_var = df["log_eret_w"]
     ind_var = scaler.transform(ind_var)
     return d_var, ind_var
 
@@ -50,7 +55,14 @@ def r2_score(y_true: pd.Series, y_pred: pd.Series) -> float:
     return 1 - sum((y_true - y_pred) ** 2) / sum((y_true) ** 2)
 
 
-def sample_split(df: pd.DataFrame, time: pd.Timestamp, var: list, dvar: str = "") -> tuple[
+def sample_split(
+    df: pd.DataFrame,
+    time: pd.Timestamp,
+    xvar: list,
+    mvar: list,
+    cvar: list,
+    dvar: str = "",
+) -> tuple[
     pd.DataFrame,
     pd.DataFrame,
     pd.DataFrame,
@@ -67,7 +79,21 @@ def sample_split(df: pd.DataFrame, time: pd.Timestamp, var: list, dvar: str = ""
 
     # set the dvar to zero if provided
     if dvar:
-        df[dvar] = 0
+        if dvar == "category":
+            for c in cvar:
+                df[c] = 0
+        else:
+            df[dvar] = 0
+
+    # create the interaction variables
+    ivar = []
+    for x in xvar:
+        for m in mvar:
+            var_name = f"{x}_{m}"
+            df[var_name] = df[x] * df[m]
+            ivar.append(var_name)
+
+    var = xvar + ivar + cvar
 
     train = df.loc[df["time"] < time - pd.DateOffset(months=VALIDATION_MONTH)]
     valid = df.loc[
@@ -92,6 +118,141 @@ def sample_split(df: pd.DataFrame, time: pd.Timestamp, var: list, dvar: str = ""
         x_test,
     )
 
+
+class LinearModel(torch.nn.Module):
+    """
+    Class for linear model
+    """
+
+    def __init__(
+        self, lamb=0.1, lr=1e-5, penalty=None, n_iter=10000, fit_intercept=True, alpha=0.5
+    ):
+        super().__init__()
+        self.history = []
+        self.lamb = lamb
+        self.lr = lr
+        self.penalty = penalty
+        self.n_iter = n_iter
+        self.fit_intercept = fit_intercept
+        self.alpha = alpha
+        return
+
+    def add_intercept(self, x):
+        """
+        Function to add intercept
+        """
+        a = torch.ones(x.size(0), 1)
+        return torch.cat([a, x], 1)
+
+    def forward(self, x):
+        """
+        Linear model
+        """
+        return x @ self.b.t() + self.const
+
+    def loss(self, y, y_pred, loss_func="huber", sigma=1.35):
+        """
+        Calculate the loss
+        """
+
+        rss = huber_loss(y, y_pred, sigma) if loss_func == "huber" else mse_loss(y, y_pred)
+
+        penalty = 0
+        if self.penalty == "l1":
+            penalty = l1_penalty(self.lamb, self.b)
+        if self.penalty == "l2":
+            penalty = l2_penalty(self.lamb, self.b)
+        if self.penalty == "enet":
+            penalty = elastic_penalty(self.lamb, self.b, self.alpha)
+
+        return rss + penalty
+
+
+    def fit(self, x, y, loss_func="huber", sigma=1.35):
+        """
+        Function to fit the model
+        """
+
+        x = torch.FloatTensor(x)
+        y = torch.FloatTensor(y)
+
+        if self.fit_intercept:
+            x = self.add_intercept(x)
+
+        self.b = torch.nn.Parameter(torch.zeros(x.shape[1]))
+        self.const = torch.nn.Parameter(torch.zeros(1))
+
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
+
+        for _ in range(self.n_iter):
+            x_ = torch.FloatTensor(x)
+            y_ = torch.FloatTensor(y)
+
+            y_pred = self.forward(x_)
+            optimizer.zero_grad()
+            loss = self.loss(y_, y_pred, loss_func, sigma)
+            loss.backward()
+            optimizer.step()
+
+            self.history.append(loss.item())
+
+        return self.b.detach().numpy(), self.const.detach().numpy()
+
+    def predict(self, x):
+        """
+        Function to predict
+        """
+        x = torch.FloatTensor(x)
+        if self.fit_intercept:
+            x = self.add_intercept(x)
+        return self.forward(x).detach().numpy()
+
+    def plot_history(self):
+        """
+        Function to plot the history
+        """
+        return sns.lineplot(
+            x=[i + 1 for i in range(len(self.history))], y=self.history
+        ).set(xlabel="Iteration", ylabel="Loss", title="History")
+
+def pls_model(
+    x_train: np.ndarray | spmatrix,
+    y_train: pd.Series,
+    n_components: int,
+    ) -> Any:
+    """
+    Function to create the PLS model
+    """
+    
+    model = PLSRegression(n_components=n_components)
+    model.fit(x_train, y_train)
+    
+    return model
+
+def gbrt_model(
+    x_train: np.ndarray | spmatrix,
+    y_train: pd.Series,
+    max_depth: int,
+    tree_num: int,
+    learning_rate: float,
+) -> Any:
+    """
+    Function to create the gradient boosting model
+    """
+    
+    model = GradientBoostingRegressor(
+        max_depth=max_depth,
+        n_estimators=tree_num,
+        learning_rate=learning_rate,
+        random_state=0,
+        loss="huber",
+    )
+
+    model.fit(x_train, y_train)
+    return model
+
+
+
 def rf_model(
     x_train: np.ndarray | spmatrix,
     y_train: pd.Series,
@@ -112,6 +273,7 @@ def rf_model(
 
     model.fit(x_train, y_train)
     return model
+
 
 def nn_model(
     x_train: np.ndarray | spmatrix,

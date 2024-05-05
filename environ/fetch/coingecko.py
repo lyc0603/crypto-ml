@@ -32,7 +32,9 @@ class CoinGecko:
         """
         Method to fetch the list of coins from CoinGecko API
         """
-        url = "https://api.coingecko.com/api/v3/coins/list"
+        url = (
+            "https://api.coingecko.com/api/v3/coins/list"
+        )
         response = requests.get(url, timeout=60)
         return response.json()
 
@@ -40,7 +42,9 @@ class CoinGecko:
         """
         Method to fetch the list of coins categories from CoinGecko API
         """
-        url = "https://api.coingecko.com/api/v3/coins/categories/list"
+        url = (
+            "https://api.coingecko.com/api/v3/coins/categories/list"
+        )
         response = requests.get(url, timeout=60)
         return response.json()
 
@@ -52,12 +56,15 @@ class CoinGecko:
         response = requests.get(url, timeout=60)
         return response.json()
 
-    def market(self, category) -> list[dict[str, str]]:
+    def market(self, category: str, api_key: str) -> list[dict[str, str]]:
         """
         Method to get the market data from CoinGecko API
         """
 
-        url = f"https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&category={category}"
+        url = (
+            f"https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&category={category}"
+            + f"&x_cg_demo_api_key={api_key}"
+        )
         response = requests.get(url, timeout=60)
         return response.json()
 
@@ -92,9 +99,7 @@ class CoinGecko:
             df_crypto["timestamp"] = df_crypto["timestamp"] + [
                 _[0] for _ in response["prices"]
             ]
-            df_crypto["id"] = df_crypto["id"] + [coin_id] * len(
-                response["prices"]
-            )
+            df_crypto["id"] = df_crypto["id"] + [coin_id] * len(response["prices"])
             df_crypto = pd.DataFrame(df_crypto)
 
             # convert the timestamp to datetime and remove the current timestamp

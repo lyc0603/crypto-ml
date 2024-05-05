@@ -28,10 +28,13 @@ VALIDATION_MONTH = 1
 TEST_START_DATE = "2021-01-01"
 
 # ml method
-ML_METHOD = ["rf"] + [f"nn_{_}" for _ in range(1, 6)]
+ML_METHOD = ["ols", "lasso", "enet", "rf"] + [f"nn_{_}" for _ in range(1, 6)]
 
 ML_NAMING_DICT = {
-    "rf" : "RF",
+    "ols": "OLS+H",
+    "lasso": "Lasso+H",
+    "enet": "Enet+H",
+    "rf": "RF",
     "nn_1": "NN1",
     "nn_2": "NN2",
     "nn_3": "NN3",
@@ -39,25 +42,63 @@ ML_NAMING_DICT = {
     "nn_5": "NN5",
 }
 
+ML_PATH = {
+    "ols": "res",
+    "lasso": "res_comp",
+    "enet": "res_comp",
+    "rf": "res",
+    "nn_1": "res",
+    "nn_2": "res",
+    "nn_3": "res",
+    "nn_4": "res",
+    "nn_5": "res",
+}
+
 # hyperparameters
 PARAM_GRID = {
+    "pls": {
+        "n_components": [1, 3, 5, 10, 20, 50],
+    },
+    "enet": {
+        "lamb": [10**_ for _ in np.linspace(-4, -1, num=5)],
+    },
+    "lasso": {
+        "lamb": [10**_ for _ in np.linspace(-4, -1, num=5)],
+    },
+    "gbrt": {
+        "max_depth": [1, 2],
+        "tree_num": [250, 500, 750, 1000],
+        "learning_rate": [0.01, 0.1],
+    },
+    "rf": {
+        "max_depth": range(1, 7, 1),
+        "max_features": [3, 5, 10, 20, 30, 50],
+    },
     "nn": {
         "hidden_layer_sizes": [
-            (128,),
-            (128, 64),
-            (128, 64, 32),
-            (128, 64, 32, 16),
+            # (128,),
+            # (128, 64),
+            # (128, 64, 32),
+            # (128, 64, 32, 16),
             (128, 64, 32, 16, 8),
         ],
-        "alpha": [10**_ for _ in np.linspace(-4, -3, num=5)],
-        "learning_rate_init": np.linspace(0.001, 0.1, num=5),
+        "alpha": [10**_ for _ in np.linspace(-5, -3, num=5)],
+        "learning_rate_init": [0.001, 0.01],
     },
-    "rf":{
-        "max_depth": range(1, 7, 1),
-        "max_features": [3, 5, 10, 20],
-    }
 }
-PARAM_GRID
+
+CATEGORY_LIST = [
+    "layer-1",
+    "layer-2",
+    "smart-contract-platform",
+    "alleged-sec-securities",
+    "exchange-based-tokens",
+    "centralized-exchange-token-cex",
+    "decentralized-exchange",
+    "decentralized-finance-defi",
+    "meme-token",
+    "governance",
+]
 
 # risk-free rate
 FAMA_FRENCH_DAILY_FACTOR = (

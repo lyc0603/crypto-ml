@@ -51,7 +51,7 @@ def load_db(
     df_crypto = []
 
     # Iterate over each document in the collection
-    for document in collection.find():
+    for document in tqdm(collection.find()):
         df_crypto.append(document)
 
     # convert the data to dataframe
