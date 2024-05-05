@@ -32,8 +32,8 @@ ML_METHOD = ["ols", "lasso", "enet", "rf"] + [f"nn_{_}" for _ in range(1, 6)]
 
 ML_NAMING_DICT = {
     "ols": "OLS+H",
-    "lasso": "Lasso+H",
-    "enet": "Enet+H",
+    "lasso": "LASSO+H",
+    "enet": "ENet+H",
     "rf": "RF",
     "nn_1": "NN1",
     "nn_2": "NN2",
