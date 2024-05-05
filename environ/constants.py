@@ -31,9 +31,9 @@ TEST_START_DATE = "2021-01-01"
 ML_METHOD = ["ols", "lasso", "enet", "rf"] + [f"nn_{_}" for _ in range(1, 6)]
 
 ML_NAMING_DICT = {
-    "ols": "OLS+H",
-    "lasso": "LASSO+H",
-    "enet": "ENet+H",
+    "ols": "OLS",
+    "lasso": "LASSO",
+    "enet": "ENet",
     "rf": "RF",
     "nn_1": "NN1",
     "nn_2": "NN2",
@@ -53,6 +53,7 @@ ML_PATH = {
     "nn_4": "res",
     "nn_5": "res",
 }
+H_ML = ["OLS", "LASSO", "ENet"]
 
 # hyperparameters
 PARAM_GRID = {
