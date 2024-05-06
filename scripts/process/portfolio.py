@@ -2,6 +2,7 @@
 Script to generate decile portfolio
 """
 
+import numpy as np
 import glob
 import warnings
 import pandas as pd
@@ -22,6 +23,8 @@ for ml in tqdm(ML_METHOD):
         ]
     )
     df.sort_values(["time", "log_eret_pred"], ascending=True, inplace=True)
+    # convert the log_eret_pred to eret_pred
+    df["eret_pred"] = df["log_eret_pred"].apply(lambda x: np.exp(x) - 1)
     df.reset_index(drop=True, inplace=True)
 
     df_q = pd.DataFrame()
@@ -35,8 +38,6 @@ for ml in tqdm(ML_METHOD):
             ]
 
             df_quantile["quantile"] = quantile
-            df_quantile["avg_ret"] = df_quantile["log_eret_w"].mean()
-
             df_q = pd.concat([df_q, df_quantile])
 
     portfolio_dict[ml] = df_q
