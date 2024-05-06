@@ -18,8 +18,8 @@ for ml in ML_METHOD:
         df_q = df.loc[df["quantile"] == quantile].copy()
         # percentage and two decimal points
         asset_pricing_dict[ml][quantile] = {
-            "Avg": round(df_q["ret_w"].mean() * 100, 2),
-            "Pred": round(df_q["ret_pred"].mean() * 100, 2),
-            "SD": round(df_q["ret_w"].std() * 100, 2),
-            "SR": round(df_q["ret_w"].mean() / df_q["ret_w"].std(), 2)
+            "Avg": round(df_q["log_eret_w"].mean() * 100, 2),
+            "Pred": round(df_q["log_eret_pred"].mean() * 100, 2),
+            "SD": round(df_q["log_eret_w"].std() * 100, 2),
+            "SR": round(df_q["log_eret_w"].mean() / df_q["log_eret_w"].std(), 2)
         }

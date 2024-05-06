@@ -10,11 +10,20 @@ from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.cross_decomposition import PLSRegression
 
 from environ.constants import PARAM_GRID
-from environ.process.ml_model import (LinearModel, nn_model, r2_score,
-                                      rf_model, gbrt_model, pls_model, sample_split)
+from environ.process.ml_model import (
+    LinearModel,
+    nn_model,
+    r2_score,
+    rf_model,
+    gbrt_model,
+    pls_model,
+    pcr_model,
+    sample_split,
+)
 from environ.process.ml_utils import ensemble_prediction
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
 
 def ols(
     df: pd.DataFrame,
@@ -43,7 +52,7 @@ def ols(
 
     res = []
     model = LinearModel(penalty=None, lr=1e-5, n_iter=10000)
-    model.fit(x_train, y_train, loss_func='huber')
+    model.fit(x_train, y_train, loss_func="huber")
     s_valid = r2_score(y_valid, model.predict(x_valid))
     res.append((s_valid, model))
 
@@ -90,7 +99,8 @@ def ols(
         params_list,
     )
 
-def pls(
+
+def pcr(
     df: pd.DataFrame,
     time: pd.Timestamp,
     xvar: list[str],
@@ -98,7 +108,7 @@ def pls(
     cvar: list[str],
 ) -> tuple[dict[str, pd.DataFrame], PLSRegression, list[dict[str, float]]]:
     """
-    Function to run the neural network
+    Function to run the PCR
     """
 
     dff = df.copy()
@@ -116,10 +126,8 @@ def pls(
     ) = sample_split(dff, time, xvar, mvar, cvar)
 
     res = []
-    for k in PARAM_GRID["pls"]["n_components"]:
-        model = pls_model(
-            x_train, y_train, n_components=k
-        )
+    for k in PARAM_GRID["pcr"]["n_components"]:
+        model = pcr_model(x_train, y_train, n_components=k)
         s_valid = r2_score(y_valid, model.predict(x_valid))
         res.append((s_valid, model, k))
 
@@ -167,6 +175,83 @@ def pls(
         params_list,
     )
 
+
+def pls(
+    df: pd.DataFrame,
+    time: pd.Timestamp,
+    xvar: list[str],
+    mvar: list[str],
+    cvar: list[str],
+) -> tuple[dict[str, pd.DataFrame], PLSRegression, list[dict[str, float]]]:
+    """
+    Function to run the neural network
+    """
+
+    dff = df.copy()
+    # split the data
+    (
+        _,
+        _,
+        test,
+        y_train,
+        x_train,
+        y_valid,
+        x_valid,
+        _,
+        x_test,
+    ) = sample_split(dff, time, xvar, mvar, cvar)
+
+    res = []
+    for k in PARAM_GRID["pls"]["n_components"]:
+        model = pls_model(x_train, y_train, n_components=k)
+        s_valid = r2_score(y_valid, model.predict(x_valid))
+        res.append((s_valid, model, k))
+
+    s_valid, opt_model, k = max(res)
+
+    # var importance
+    test_dict = {}
+    params_list = []
+
+    for dvar in [""] + xvar + mvar + ["category"]:
+        dfv = df.copy()
+        (
+            train,
+            _,
+            test,
+            y_train,
+            x_train,
+            _,
+            _,
+            _,
+            x_test,
+        ) = sample_split(dfv, time, xvar, mvar, cvar, dvar)
+        train["log_eret_pred"] = opt_model.predict(x_train)
+        test["log_eret_pred"] = opt_model.predict(x_test)
+        s_train = r2_score(train["log_eret_w"], train["log_eret_pred"])
+        s_test = r2_score(test["log_eret_w"], test["log_eret_pred"])
+
+        # save the prediction, params, and scores
+        test_dict[dvar] = test.copy()
+        params_list.append(
+            {
+                "date": time,
+                "dvar": dvar,
+                "n_components": k,
+                "train_score": s_train,
+                "valid_score": s_valid,
+                "test_score": s_test,
+            }
+        )
+        print(f"dvar: {dvar}, train_score: {s_train}, test_score: {s_test}")
+
+    return (
+        test_dict,
+        opt_model,
+        params_list,
+    )
+
+
 def lasso(
     df: pd.DataFrame,
     time: pd.Timestamp,
@@ -194,8 +279,8 @@ def lasso(
 
     res = []
     for lamb in PARAM_GRID["lasso"]["lamb"]:
-        model = LinearModel(penalty='l1', lr=1e-5, n_iter=10000, lamb=lamb)
-        model.fit(x_train, y_train, loss_func='huber')
+        model = LinearModel(penalty="l1", lr=1e-5, n_iter=10000, lamb=lamb)
+        model.fit(x_train, y_train, loss_func="huber")
         s_valid = r2_score(y_valid, model.predict(x_valid))
         res.append((s_valid, model, lamb))
 
@@ -242,6 +327,7 @@ def lasso(
         opt_model,
         params_list,
     )
+
 
 def enet(
     df: pd.DataFrame,
@@ -270,8 +356,8 @@ def enet(
 
     res = []
     for lamb in PARAM_GRID["enet"]["lamb"]:
-        model = LinearModel(penalty='enet', lr=1e-5, n_iter=10000, lamb=lamb, alpha=0.5)
-        model.fit(x_train, y_train, loss_func='huber')
+        model = LinearModel(penalty="enet", lr=1e-5, n_iter=10000, lamb=lamb, alpha=0.5)
+        model.fit(x_train, y_train, loss_func="huber")
         s_valid = r2_score(y_valid, model.predict(x_valid))
         res.append((s_valid, model, lamb))
 
@@ -318,6 +404,7 @@ def enet(
         opt_model,
         params_list,
     )
+
 
 def gbrt(
     df: pd.DataFrame,
@@ -397,6 +484,7 @@ def gbrt(
         opt_model,
         params_list,
     )
+
 
 def rf(
     df: pd.DataFrame,

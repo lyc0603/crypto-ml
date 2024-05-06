@@ -16,7 +16,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from environ.constants import PARAM_GRID, PROCESSED_DATA_PATH, TEST_START_DATE
-from environ.process.ml_tuning import enet, gbrt, lasso, nn, ols, rf, pls
+from environ.process.ml_tuning import enet, gbrt, lasso, nn, ols, rf, pls, pcr
 
 warnings.filterwarnings("ignore")
 
@@ -72,27 +72,27 @@ week_date = list(pd.date_range(test_start_date, test_end_date, freq="W"))
 #             index=False,
 #         )
 
-# PLS
+# PCR
 test_dict_agg = {var: pd.DataFrame() for var in [""] + xvar + mvar + ["category"]}
 
 for date in tqdm(week_date):
     date_str = date.strftime("%Y-%m-%d")
     if os.path.exists(
-            PROCESSED_DATA_PATH / "res" / "test" / f"pls_category_{date_str}.csv"
+            PROCESSED_DATA_PATH / "res" / "test" / f"pcr_category_{date_str}.csv"
         ):
             continue
     # select the best model
-    test_dict, opt_model, params_list = pls(df, date, xvar, mvar, cvar)
+    test_dict, opt_model, params_list = pcr(df, date, xvar, mvar, cvar)
 
     # save models
-    with open(PROCESSED_DATA_PATH / "res" / "model" / f"pls_{date_str}.pkl", "wb") as f:
+    with open(PROCESSED_DATA_PATH / "res" / "model" / f"pcr_{date_str}.pkl", "wb") as f:
         pickle.dump(opt_model, f)
 
     # save the params
     params_df = pd.DataFrame(params_list)
     params_df["date"] = params_df["date"].dt.strftime("%Y-%m-%d")
     params_df.to_csv(
-        PROCESSED_DATA_PATH / "res" / "params" / f"pls_{date_str}.csv",
+        PROCESSED_DATA_PATH / "res" / "params" / f"pcr_{date_str}.csv",
         index=False,
     )
 
@@ -101,9 +101,42 @@ for date in tqdm(week_date):
         test_df = pd.DataFrame(test_df)
         test_df["time"] = test_df["time"].dt.strftime("%Y-%m-%d")
         test_df.to_csv(
-            PROCESSED_DATA_PATH / "res" / "test" / f"pls_{var}_{date_str}.csv",
+            PROCESSED_DATA_PATH / "res" / "test" / f"pcr_{var}_{date_str}.csv",
             index=False,
         )
+
+# # PLS
+# test_dict_agg = {var: pd.DataFrame() for var in [""] + xvar + mvar + ["category"]}
+
+# for date in tqdm(week_date):
+#     date_str = date.strftime("%Y-%m-%d")
+#     if os.path.exists(
+#             PROCESSED_DATA_PATH / "res" / "test" / f"pls_category_{date_str}.csv"
+#         ):
+#             continue
+#     # select the best model
+#     test_dict, opt_model, params_list = pls(df, date, xvar, mvar, cvar)
+
+#     # save models
+#     with open(PROCESSED_DATA_PATH / "res" / "model" / f"pls_{date_str}.pkl", "wb") as f:
+#         pickle.dump(opt_model, f)
+
+#     # save the params
+#     params_df = pd.DataFrame(params_list)
+#     params_df["date"] = params_df["date"].dt.strftime("%Y-%m-%d")
+#     params_df.to_csv(
+#         PROCESSED_DATA_PATH / "res" / "params" / f"pls_{date_str}.csv",
+#         index=False,
+#     )
+
+#     # save the test
+#     for var, test_df in test_dict.items():
+#         test_df = pd.DataFrame(test_df)
+#         test_df["time"] = test_df["time"].dt.strftime("%Y-%m-%d")
+#         test_df.to_csv(
+#             PROCESSED_DATA_PATH / "res" / "test" / f"pls_{var}_{date_str}.csv",
+#             index=False,
+#         )
 
 # # Lasso
 # test_dict_agg = {var: pd.DataFrame() for var in [""] + xvar + mvar + ["category"]}
@@ -172,34 +205,34 @@ for date in tqdm(week_date):
 #             index=False,
 #         )
 
-# Gradient boosting regressor
-test_dict_agg = {var: pd.DataFrame() for var in [""] + xvar + mvar + ["category"]}
+# # Gradient boosting regressor
+# test_dict_agg = {var: pd.DataFrame() for var in [""] + xvar + mvar + ["category"]}
 
-for date in tqdm(week_date):
-    # select the best model
-    test_dict, opt_model, params_list = gbrt(df, date, xvar, mvar, cvar)
-    date_str = date.strftime("%Y-%m-%d")
+# for date in tqdm(week_date):
+#     # select the best model
+#     test_dict, opt_model, params_list = gbrt(df, date, xvar, mvar, cvar)
+#     date_str = date.strftime("%Y-%m-%d")
 
-    # save models
-    with open(PROCESSED_DATA_PATH / "res" / "model" / f"gbrt_{date_str}.pkl", "wb") as f:
-        pickle.dump(opt_model, f)
+#     # save models
+#     with open(PROCESSED_DATA_PATH / "res" / "model" / f"gbrt_{date_str}.pkl", "wb") as f:
+#         pickle.dump(opt_model, f)
 
-    # save the params
-    params_df = pd.DataFrame(params_list)
-    params_df["date"] = params_df["date"].dt.strftime("%Y-%m-%d")
-    params_df.to_csv(
-        PROCESSED_DATA_PATH / "res" / "params" / f"gbrt_{date_str}.csv",
-        index=False,
-    )
+#     # save the params
+#     params_df = pd.DataFrame(params_list)
+#     params_df["date"] = params_df["date"].dt.strftime("%Y-%m-%d")
+#     params_df.to_csv(
+#         PROCESSED_DATA_PATH / "res" / "params" / f"gbrt_{date_str}.csv",
+#         index=False,
+#     )
 
-    # save the test
-    for var, test_df in test_dict.items():
-        test_df = pd.DataFrame(test_df)
-        test_df["time"] = test_df["time"].dt.strftime("%Y-%m-%d")
-        test_df.to_csv(
-            PROCESSED_DATA_PATH / "res" / "test" / f"gbrt_{var}_{date_str}.csv",
-            index=False,
-        )
+#     # save the test
+#     for var, test_df in test_dict.items():
+#         test_df = pd.DataFrame(test_df)
+#         test_df["time"] = test_df["time"].dt.strftime("%Y-%m-%d")
+#         test_df.to_csv(
+#             PROCESSED_DATA_PATH / "res" / "test" / f"gbrt_{var}_{date_str}.csv",
+#             index=False,
+#         )
 
 # # random forest
 # test_dict_agg = {var: pd.DataFrame() for var in [""] + xvar + mvar + ["category"]}

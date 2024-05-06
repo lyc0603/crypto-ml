@@ -28,7 +28,7 @@ VALIDATION_MONTH = 1
 TEST_START_DATE = "2021-01-01"
 
 # ml method
-ML_METHOD = ["lasso", "enet", "rf"] + [f"nn_{_}" for _ in range(1, 6)]
+ML_METHOD = ["ols", "lasso", "enet", "rf"] + [f"nn_{_}" for _ in range(1, 6)]
 
 ML_NAMING_DICT = {
     "ols": "OLS",
@@ -60,6 +60,9 @@ PARAM_GRID = {
     "pls": {
         "n_components": [1, 3, 5, 10, 20, 50],
     },
+    "pcr":{
+        "n_components": [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+    },
     "enet": {
         "lamb": [10**_ for _ in np.linspace(-4, -1, num=5)],
     },
@@ -77,11 +80,11 @@ PARAM_GRID = {
     },
     "nn": {
         "hidden_layer_sizes": [
-            # (128,),
-            # (128, 64),
-            # (128, 64, 32),
-            # (128, 64, 32, 16),
-            (128, 64, 32, 16, 8),
+            (32,),
+            (32, 16),
+            (32, 16, 8),
+            (32, 16, 8, 4),
+            (32, 16, 8, 4, 2),
         ],
         "alpha": [10**_ for _ in np.linspace(-5, -3, num=5)],
         "learning_rate_init": [0.001, 0.01],

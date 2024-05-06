@@ -14,6 +14,9 @@ from scipy.sparse import spmatrix
 from sklearn import preprocessing
 from sklearn.cross_decomposition import PLSRegression
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
+from sklearn.decomposition import PCA
+from sklearn.linear_model import LinearRegression
+from sklearn.pipeline import make_pipeline
 
 from environ.constants import VALIDATION_MONTH
 from environ.process.ml_utils import (elastic_penalty, huber_loss, l1_penalty,
@@ -228,6 +231,22 @@ def pls_model(
     model.fit(x_train, y_train)
     
     return model
+
+def pcr_model(
+    x_train: np.ndarray | spmatrix,
+    y_train: pd.Series,
+    n_components: int,
+    ) -> Any:
+    """
+    Function to create the PCR model
+    """
+
+    model = make_pipeline(PCA(n_components=n_components), LinearRegression())
+    model.fit(x_train, y_train)
+
+    return model
+
+
 
 def gbrt_model(
     x_train: np.ndarray | spmatrix,

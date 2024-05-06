@@ -2,17 +2,26 @@
 Script to generate decile portfolio
 """
 
+import glob
 import warnings
 import pandas as pd
-from environ.constants import PROCESSED_DATA_PATH, ML_METHOD
+from tqdm import tqdm
+from environ.constants import PROCESSED_DATA_PATH, ML_METHOD, ML_PATH
 
 warnings.filterwarnings("ignore")
 
 portfolio_dict = {}
 
-for ml in ML_METHOD:
-    df = pd.read_csv(PROCESSED_DATA_PATH / "res" / "test" / f"{ml}_.csv")
-    df.sort_values(["time", "ret_pred"], ascending=True, inplace=True)
+for ml in tqdm(ML_METHOD):
+    df = pd.concat(
+        [
+            pd.read_csv(file)
+            for file in glob.glob(
+                f"{PROCESSED_DATA_PATH}/{ML_PATH[ml]}/test/{ml}__*.csv"
+            )
+        ]
+    )
+    df.sort_values(["time", "log_eret_pred"], ascending=True, inplace=True)
     df.reset_index(drop=True, inplace=True)
 
     df_q = pd.DataFrame()
@@ -26,7 +35,7 @@ for ml in ML_METHOD:
             ]
 
             df_quantile["quantile"] = quantile
-            df_quantile["avg_ret"] = df_quantile["ret_w"].mean()
+            df_quantile["avg_ret"] = df_quantile["log_eret_w"].mean()
 
             df_q = pd.concat([df_q, df_quantile])
 
