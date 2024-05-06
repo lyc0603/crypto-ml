@@ -48,7 +48,8 @@ PLOT_DICT = {
 # plot the cumulative return
 for port in ["l", "ls"]:
     plt.figure(figsize=(10, 6))
-    for ml, ml_plot in cumret_plot_dict.items():
+    for ml in ML_METHOD:
+        ml_plot = cumret_plot_dict[ml]
         plt.plot(
             ml_plot.index,
             ml_plot[port],
@@ -57,9 +58,28 @@ for port in ["l", "ls"]:
             linestyle=PLOT_DICT[ml]["ls"],
             alpha=0.75,
         )
-        plt.legend(loc="upper left")
-        plt.grid(alpha=0.25)
-        plt.tight_layout()
 
-    # plt.show()
+    # plot the equal weight
+    ml_plot = cumret_plot_dict["eq"]
+    plt.plot(
+        ml_plot["eq"],
+        label="Equal",
+        color="black",
+        linestyle="dashed",
+        alpha=0.75,
+    )
+
+    # plot the mcap weight
+    ml_plot = cumret_plot_dict["mcap"]
+    plt.plot(
+        ml_plot["mcap"],
+        label="Mcap",
+        color="black",
+        linestyle="dotted",
+        alpha=0.75,
+    )
+
+    plt.legend(loc="upper left")
+    plt.grid(alpha=0.25)
+    plt.tight_layout()
     plt.savefig(f"{FIGURE_PATH}/portfolio_{port}.pdf")
