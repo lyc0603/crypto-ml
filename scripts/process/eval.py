@@ -18,7 +18,7 @@ def r2_score(y_true: pd.Series, y_pred: pd.Series) -> float:
 
 # test_rf = pd.read_csv(PROCESSED_DATA_PATH / "res_nolog" / "test" /"rf_.csv")
 test_rf = pd.concat(
-    [pd.read_csv(f) for f in glob.glob(str(PROCESSED_DATA_PATH / "res_comp" / "test" / "lasso__*.csv"))]
+    [pd.read_csv(f) for f in glob.glob(str(PROCESSED_DATA_PATH / "res" / "test" / "pcr__*.csv"))]
 )
 
 test_rf["time"] = pd.to_datetime(test_rf["time"])
