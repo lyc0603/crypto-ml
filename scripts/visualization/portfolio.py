@@ -61,5 +61,5 @@ for port in ["l", "ls"]:
         plt.grid(alpha=0.25)
         plt.tight_layout()
 
-    plt.show()
+    # plt.show()
     plt.savefig(f"{FIGURE_PATH}/portfolio_{port}.pdf")
